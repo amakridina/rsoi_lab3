@@ -10,7 +10,7 @@ def get_session_url(url_part):
 
 
 def get_artist_url(url_part):
-    return "http://localhost:27013" + url_part
+    return "http://localhost:27013/" + url_part
 
 
 def get_track_url(url_part):
@@ -69,7 +69,7 @@ def get_track_by_id(id):
     if request.method == 'GET':
         result = requests.get(url).json()
     elif request.method == 'DELETE':
-        result = request.delete(url).json()
+        result = requests.delete(url).json()
     else:
         data_json = requests.get_json()
         headers = {'Content-type': 'application/json'}

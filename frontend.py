@@ -121,6 +121,14 @@ def home():
         return render_template("artist_data.html")
     return '', 200
 
+@app.route('/homeanswer', methods=['GET'])
+def home_answer():
+    delete = request.args.get('delete')
+    id = request.args.get('id')
+    res = ''
+    if delete is not None:
+        res = delete_track_by_id(id)
+    return res
 
 @app.route('/tracks', methods=['GET'])
 def get_tracks():
@@ -144,7 +152,7 @@ def get_tracks():
     return render_template("list_tracks.html", tracks=res, page=page)
 
 
-@app.route('/tracks/<id>', methods=['GET', 'POST', 'PUT', 'DELETE'])
+@app.route('/tracks/<id>', methods=['GET', 'POST', 'PUT'])
 def get_track_by_id(id):
     name, code = get_data_from_cookies()
     print name, code
@@ -204,9 +212,6 @@ def get_track_by_id(id):
         headers = {'Content-type': 'application/json'}
         result = requests.put(url, data=json.dumps(data), headers=headers).json()
 
-    if request.method == "DELETE":
-        result = requests.delete(url)
-
     if 'error_code' in result:
         code = result['error_code']
         msg = result['error_msg']
@@ -214,10 +219,31 @@ def get_track_by_id(id):
 
     if request.method == 'GET':
         return render_template("track_id.html", track=result)
-    if request.method == 'POST' or request.method == 'PUT' or request.method == "DELETE":
+    if request.method == 'POST' or request.method == 'PUT':
         location = result['Location']
         return json.dumps({'Location': location}, indent=4), 201
 
+@app.route('/tracks/<id>', methods=['DELETE'])
+def delete_track_by_id(id):
+    name, code = get_data_from_cookies()
+    print name, code
+    if name is None or code is None:
+        return json.dumps({'error_code': 401, 'error_msg': 'UnAuthorized'}), 401
+    if name == 0 or code == 0:
+        return json.dumps({'error_code': 498, 'error_msg': 'Token expired'}), 498
+    url = get_logic_url("check_session") + "?name={0}&code={1}".format(name, code)
+    result = requests.get(url).json()
+    if 'error_code' in result:
+        code = result['error_code']
+        msg = result['error_msg']
+        return json.dumps({'message': msg, 'error': code}, indent=4), code
+    url = get_logic_url("track") + ("/{0}".format(id))
+    result = requests.delete(url)
+    if 'error_code' in result:
+        code = result['error_code']
+        msg = result['error_msg']
+        return json.dumps({'message': msg, 'error': code}, indent=4), code
+    return 'ok', 200
 
 @app.route('/artists', methods=['GET'])
 def get_artists():

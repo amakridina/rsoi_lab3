@@ -6,7 +6,7 @@
 </head>
 <body>
   <p>username <b>{{client_name}}</b></p>
-  <form>
+  <form action=/homeanswer method="GET">
     <table>
       <tbody>
         <tr>
@@ -17,7 +17,7 @@
         </tr>
         <tr>
             <td><input name="show" type="button" onclick="func()" method="GET" value="Показать"></td>
-            <td><input name="delete" type="button" onclick="func()" method="DELETE" value="Удалить"></td>
+            <td><input name="delete" type="submit" value="Удалить"></td>
         </tr>
       </tbody>
     </table>

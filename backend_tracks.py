@@ -113,15 +113,10 @@ def put_track(id):
 def delete_track(id):
     row = track_by_id(id)
     if row == 0:
-        return json.dumps({'error': 'no id'}), 400, {
-            'Content-Type': 'application/json;charset=UTF-8'}
-    del_track(id)
+        return json.dumps({'error_code': 404, 'error_msg': 'Not Found'})
+    #del_track(id)
     s = '/tracks/{'+id+'}'
-    return json.dumps({
-        'Location': s
-    }), 200, {
-            'Content-Type': 'application/json;charset=UTF-8',
-        }
+    return json.dumps({'Location': s})
 
 if __name__ == "__main__":
  app.run(debug=True, port=27014)
