@@ -53,21 +53,19 @@ def get_me():
     return json1
 
 
-@app.route("/track/", methods=['GET'])
+@app.route("/tracks", methods=['GET'])
 def get_tracks():
     page = request.args.get('page')
     per_page = request.args.get('per_page')
-    print page, per_page
-    url = get_track_url("get_tracks") + "?page={0}&per_page={1}".format(page, per_page)
+    url = get_track_url("tracks") + "?page={0}&per_page={1}".format(page, per_page)
     result = requests.get(url).json()
-    print result
     json1 = json.dumps(result)
     return json1
 
 
-@app.route("/track/<id>", methods=['GET','POST','PUT', 'DELETE'])
+@app.route("/track/<id>", methods=['GET', 'POST', 'PUT', 'DELETE'])
 def get_track_by_id(id):
-    url = get_track_url("get_track") + "/{0}".format(id)
+    url = get_track_url("track") + "/{0}".format(id)
     if request.method == 'GET':
         result = requests.get(url).json()
     elif request.method == 'DELETE':
@@ -84,7 +82,7 @@ def get_track_by_id(id):
 
 
 
-@app.route("/artist", methods=['GET'])
+@app.route("/artists", methods=['GET'])
 def get_artists():
     try:
         per_page_artist = int(request.args.get('per_page'))
@@ -101,9 +99,9 @@ def get_artists():
     for i1 in range(0, len(o1)):
         for i2 in range(0, len(o2)):
             a1 = o1[i1]; a2 = o2[i2]
-            if a1['id_artistector']== a2['id_artistector']:
+            if a1['id_artist']== a2['id_artist']:
                 items.append({
-                'id_artistector': a2['id_artistector'],
+                'id_artist': a2['id_artist'],
                 'name': a2['name'],
                 'title': a1['title']})
     items = items[(page_artist-1)*per_page_artist:page_artist*per_page_artist]
@@ -114,7 +112,7 @@ def get_artists():
         'per_page': per_page_artist,
         'page': page_artist})
 
-@app.route("/get_artist/<id>", methods=['GET', 'POST','PUT'])
+@app.route("/artist/<id>", methods=['GET', 'POST','PUT'])
 def get_artist(id):
     url = get_artist_url("get_artist") + "/{0}".format(id)
     if request.method == 'GET':
@@ -132,19 +130,19 @@ def get_artist(id):
 
 @app.route("/check_session", methods=['GET'])
 def check_ss():
-    username = request.args.get('username')
+    username = request.args.get('name')
     code = request.args.get('code')
     url = get_session_url("check_session") + "?username={0}&code={1}".format(username, code)
     result = requests.get(url).json()
     json1 = json.dumps(result)
     return json1
 
-@app.route("/check_user", methods=['GET'])
-def check_user():
-    name = request.args.get('username')
-    res = user_exist(username)
-    json1 = json.dumps(result)
-    return json1
+# @app.route("/check_user", methods=['GET'])
+# def check_user():
+#     name = request.args.get('username')
+#     res = user_exist(username)
+#     json1 = json.dumps(result)
+#     return json1
 
 if __name__ == "__main__":
     app.run(debug=True, port=27011)

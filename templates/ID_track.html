@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+  <p>username <b>{{client_name}}</b></p>
+  <form>
+    <table>
+      <tbody>
+        <tr>
+          <td>track ID:</td>
+          <td>
+            <input id="id" name="id" type="number"/>
+          </td>
+        </tr>
+        <tr>
+            <td><input name="show" type="button" onclick="func()" method="GET" value="Показать"></td>
+            <td><input name="delete" type="button" onclick="func()" method="DELETE" value="Удалить"></td>
+        </tr>
+      </tbody>
+    </table>
+  </form>
+  <script type="text/javascript">
+	function func()
+	{
+		var str = 'http://localhost:27010/tracks/'+document.getElementById('id').value.toString();
+		document.location.href=str;
+	}
+  </script>
+</body>
+</html>

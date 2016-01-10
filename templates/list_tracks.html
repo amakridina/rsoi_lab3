@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    <form action=/films method="GET">
+        <table><tbody>
+        <tr><td>ID</td><td>ID_artist</td><td>Track</td></tr>
+        {% for track in tracks %}
+        <tr>
+            <td>{{track.id}}</td>
+            <td>{{track.artist_id}}</td>
+            <td>{{track.track}}</td>
+        </tr>
+
+        {% endfor %}
+
+            </tbody></table>
+        <br>
+        Page: {{page}}
+        <br>
+        <input type="submit" value="Prev" name="prev">
+        <input type="submit" value="Next" name="next">
+    </form>
+</body>
+</html>

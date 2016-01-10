@@ -25,15 +25,6 @@ def user_exist(username, password):
     else:
         return 0
 
-def client_exist(client_id):
-    cursor = users_db_conn()
-    cursor.execute("select * from Apps where client_id='" + client_id+"'")
-    row = cursor.fetchone()
-    if row:
-        return 1
-    else:
-        return 0
-
 def insert_user(username, first_name, last_name, tel, email, password):
     db = users_db_conn()
     insert_str  = ("insert into Users"+
@@ -47,7 +38,7 @@ def insert_user(username, first_name, last_name, tel, email, password):
 def insert_code(code, username):
     try:
         cursor = users_db_conn()
-        cursor.execute("update AppCodes set code='"+code+"' where UserName='" + username+"'")
+        cursor.execute("update Tokens set AccessToken='"+code+"' where UserName='" + username+"'")
         cursor.commit()
     except ValueError:
         return 1
@@ -75,6 +66,7 @@ def tracks_from_db(page, per_page):
         if i < page * per_page:
             text = row.track
             items.append({
+            'id': row.track_id,
             'track': row.track,
             'artist_id': row.artist_id,
             'album': row.album,
@@ -181,26 +173,17 @@ def user_connected(user, code):
     cursor.execute("select * from Tokens where UserName='" + user+"'")
     row = cursor.fetchone()
     if row:
-        if row.access_token == code:
+        if row.AccessToken == code:
             return 1
     return 0
 
 
 
-def get_me(access_token):
-    cursor = users_db_conn()
-    cursor.execute("select UserName from Tokens where AccessToken='" + access_token+"'")
+def get_me(username):
+    DB = users_db_conn()
+    select_str = ("select * from Users where UserName = '%s'" % username)
+    cursor = DB.execute(select_str)
     row = cursor.fetchone()
-
-    if row:
-        username = row.UserName
-        DB = users_db_conn()
-        select_str = ("select "+
-                  "UserName,FirstName,LastName,Telephone,Email "+
-                  "from Users where UserName = '%s'" % username)
-        cursor = DB.execute(select_str)
-        row = cursor.fetchone()
-        if not row:
-            return None
-        return row
-    return None
+    if not row:
+        return None
+    return row

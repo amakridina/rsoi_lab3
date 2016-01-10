@@ -21,8 +21,8 @@ def get_data_from_cookies():
     return session.get('login'), session.get('code')
 
 
-def set_data_to_cookies(login, code):
-    session['login'] = login
+def set_data_to_cookies(user, code):
+    session['login'] = user
     session['code'] = code
     session['expired'] = datetime.now() + timedelta(minutes=10)
 
@@ -41,37 +41,9 @@ def main():
     return render_template("home.html")
 
 
-# @app.route("/authorize", methods=['POST'])
-# def authorization():
-#     if 'register' in request.form:
-#         return redirect(url_for('registration'))
-#     if 'go' in request.form:
-#         return redirect(url_for('home_form'))
-#
-#     if not ('login' in session and 'code' in session):
-#         phone = str(request.form.get('phone'))
-#         password = str(request.form.get('password'))
-#         url = get_logic_url("authorize") + "?phone={0}&password={1}".format(phone, password)
-#         result = requests.get(url).json()
-#         if 'error_code' in result:
-#             code = result['error_code']
-#             msg = result['error_msg']
-#             return json.dumps({'message': msg, 'error': code}, indent=4), code
-#         session.permanent = True
-#         set_data_to_cookies(phone, result['code'])
-#         response = make_response(redirect(url_for('home_form')))
-#         response.set_cookie('Expires', "{0}".format(datetime.now()+timedelta(minutes=10)))
-#         response.set_cookie('token', result['code'])
-#         response.set_cookie('login', phone)
-#         print response
-#         return response
-#
-#     return redirect(url_for('home_form'))
-
-
 @app.route("/authorize", methods=['GET', 'POST'])
 def login():
-    errorInfo = ''
+    error_info = ''
     if request.method == 'POST':
         if not ('login' in session and 'code' in session):
             username = request.form['username']
@@ -90,12 +62,13 @@ def login():
             response.set_cookie('login', username)
             print response
             return response
-    return render_template('auth.html', errorInfo=errorInfo)
+        return redirect(url_for('home_form'))
+    return render_template('auth.html', errorInfo=error_info)
 
 
-@app.route('/register', methods=['POST','GET'])
+@app.route('/register', methods=['POST', 'GET'])
 def register():
-    errorInfo = ''
+    error_info = ''
     if request.method == 'POST':
         name = request.form['username']
         first_name = request.form['fname']
@@ -105,7 +78,7 @@ def register():
         password = request.form['password']
 
         url = get_logic_url("add_user")
-        data = {'name': name, 'password': password, 'email': email, 'phone': phone, 'fname':first_name,'lname':last_name}
+        data = {'name': name, 'password': password, 'email': email, 'phone': phone, 'fname': first_name, 'lname': last_name}
         headers = {'Content-type': 'application/json'}
 
         result = requests.post(url, data=json.dumps(data), headers=headers).json()
@@ -115,7 +88,7 @@ def register():
             msg = result['error_msg']
             return json.dumps({'message': msg, 'error': code}, indent=4), code
         return render_template("authorize.html")
-    render_template('register.html', errorInfo=errorInfo)
+    render_template('register.html', errorInfo=error_info)
 
 
 @app.route("/logout", methods=['GET'])
@@ -138,22 +111,14 @@ def home_form():
 
 @app.route('/home', methods=['POST'])
 def home():
-    if 'get_tracks' in request.form:
-        return redirect(url_for('get_tracks'))
     if 'track_by_id' in request.form:
         return render_template("ID_track.html")
     if 'p_tracks' in request.form:
         return render_template("track_data.html")
-    if 'get_artists' in request.form:
-        return redirect(url_for('get_artists'))
     if 'artist_by_id' in request.form:
         return render_template("ID_artist.html")
     if 'p_artists' in request.form:
         return render_template("artist_data.html")
-    if 'me' in request.form:
-        return redirect(url_for('me'))
-    if 'logout' in request.form:
-        return redirect(url_for('logout'))
     return '', 200
 
 
@@ -176,13 +141,11 @@ def get_tracks():
         msg = result['error_msg']
         return json.dumps({'message': msg, 'error': code}, indent=4), code
     res = result['items']
-    return render_template("tracks_show.html", tracks=res, page=page)
+    return render_template("list_tracks.html", tracks=res, page=page)
 
 
-@app.route('/tracks/<id>', methods=['GET','POST', 'PUT','DELETE'])
+@app.route('/tracks/<id>', methods=['GET', 'POST', 'PUT', 'DELETE'])
 def get_track_by_id(id):
-    responce = redirect('/')
-    print responce
     name, code = get_data_from_cookies()
     print name, code
     if name is None or code is None:
@@ -211,8 +174,8 @@ def get_track_by_id(id):
         if album is None or track is None or genre is None:
             return '', 400
         headers = {'Content-type': 'application/json'}
-        data = {'id': id, 'track': track, 'artist_id': artist_id ,
-                'album': album,'year': year, 'genre': genre}
+        data = {'id': id, 'track': track, 'artist_id': artist_id,
+                'album': album, 'year': year, 'genre': genre}
         result = requests.post(url, data=json.dumps(data), headers=headers).json()
 
     if request.method == "PUT":
@@ -239,7 +202,6 @@ def get_track_by_id(id):
         if genre != '':
             data = {'id': id, 'genre': genre}
         headers = {'Content-type': 'application/json'}
-        print data
         result = requests.put(url, data=json.dumps(data), headers=headers).json()
 
     if request.method == "DELETE":
@@ -251,7 +213,7 @@ def get_track_by_id(id):
         return json.dumps({'message': msg, 'error': code}, indent=4), code
 
     if request.method == 'GET':
-        return render_template("track_by_id.html", tracks=result)
+        return render_template("track_id.html", track=result)
     if request.method == 'POST' or request.method == 'PUT' or request.method == "DELETE":
         location = result['Location']
         return json.dumps({'Location': location}, indent=4), 201
@@ -333,7 +295,7 @@ def post_artist(id):
         return json.dumps({'error_code': 401, 'error_msg': 'UnAuthorized'}), 401
     if phone == 0 or code == 0:
         return json.dumps({'error_code': 498, 'error_msg': 'Token expired'}), 498
-    url = get_logic_url("check_session") + "?phone={0}&code={1}".format(phone, code)
+    url = get_logic_url("check_session") + "?username={0}&code={1}".format(phone, code)
     result = requests.get(url).json()
     if 'error_code' in result:
         code = result['error_code']
@@ -385,7 +347,7 @@ def put_artist(id):
     if birthday != '':
         data = {'artist_id': id, 'birthday': birthday}
     if country != '':
-        data = {'artist_id': id,'country': country}
+        data = {'artist_id': id, 'country': country}
     headers = {'Content-type': 'application/json'}
 
     result = requests.put(url, data=json.dumps(data), headers=headers).json()

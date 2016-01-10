@@ -28,7 +28,6 @@ def add_user_db():
 def authorize():
     user_name = request.args.get('username')
     password = request.args.get('password')
-    str = user_exist(user_name, password)
     if user_exist(user_name, password):
         code = ''.join(random.choice(string.lowercase) for i in range(30))
         i = insert_code(code, user_name)
@@ -41,19 +40,19 @@ def authorize():
 @app.route("/api/me", methods=['GET'])
 def me():
     access_token = request.headers.get('Authorization', '')[len('Bearer '):]
-    Info = get_me(access_token)
-    if not Info:
+    info = get_me(access_token)
+    if not info:
         return json.dumps({'error': 'invalid_token'}), 400, {
                 'Content-Type': 'application/json;charset=UTF-8',
             }
-    return jsonify(UserName=Info.UserName,
-                FirstName=Info.FirstName,
-                LastName=Info.LastName,
-                Telephone=Info.Telephone,
-                Email=Info.Email)
+    return jsonify(UserName=info.UserName,
+                FirstName=info.FirstName,
+                LastName=info.LastName,
+                Telephone=info.Telephone,
+                Email=info.Email)
 
 
-@app.route("/session_check", methods=['GET'])
+@app.route("/check_session", methods=['GET'])
 def check_ss():
     user_name = request.args.get('username')
     code = request.args.get('code')
