@@ -37,19 +37,17 @@ def authorize():
     return json.dumps({'error_code': 400, 'error_msg': 'Bad Request'})
 
 
-@app.route("/api/me", methods=['GET'])
+@app.route("/get_me", methods=['GET'])
 def me():
-    access_token = request.headers.get('Authorization', '')[len('Bearer '):]
-    info = get_me(access_token)
-    if not info:
-        return json.dumps({'error': 'invalid_token'}), 400, {
-                'Content-Type': 'application/json;charset=UTF-8',
-            }
-    return jsonify(UserName=info.UserName,
-                FirstName=info.FirstName,
-                LastName=info.LastName,
-                Telephone=info.Telephone,
-                Email=info.Email)
+    name = request.args.get('name')
+    row = get_me(name)
+    if row == 0:
+        return json.dumps({'error_code': 500, 'error_msg': 'Server Error'})
+    return jsonify(UserName=row.UserName,
+                FirstName=row.FirstName,
+                LastName=row.LastName,
+                Telephone=row.Telephone,
+                Email=row.Email)
 
 
 @app.route("/check_session", methods=['GET'])

@@ -114,7 +114,7 @@ def delete_track(id):
     row = track_by_id(id)
     if row == 0:
         return json.dumps({'error_code': 404, 'error_msg': 'Not Found'})
-    #del_track(id)
+    del_track(id)
     return json.dumps({'ok' : 'ok'})
 
 @app.route("/tracks_for_artist", methods=['GET'])

@@ -4,19 +4,16 @@
     <title></title>
 </head>
 <body>
-    <form action=/directors method="GET">
+    <form action=/artists method="GET">
         <table><tbody>
-        <td>ID_artist</td><td>Name</td><td>Track</td></tr>
+        <td>ID_artist</td><td>Name</td></tr>
         {% for artist in artists %}
         <tr>
             <td>{{artist.artist_id}}</td>
             <td>{{artist.name}}</td>
-            <td>{{artist.track}}</td>
         </tr>
-
         {% endfor %}
-
-            </tbody></table>
+        </tbody></table>
         <br>
         Page: {{page}}
         <br>

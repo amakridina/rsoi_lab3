@@ -4,37 +4,25 @@
     <title></title>
 </head>
   <p>Application </p>
-  <form action=/add_edit_track method="GET">
+  <form action=/add_edit_artist method="GET">
     <table>
       <tbody>
         <tr>
-          <td>ID:</td>
+          <td>ID_artist:</td>
           <td>
             <input name="id" type="number" />
           </td>
         </tr>
         <tr>
-          <td>ID_artist:</td>
+          <td>Name:</td>
           <td>
-            <input name="artist_id" type="number" />
+            <input name="name" />
           </td>
         </tr>
         <tr>
-          <td>Track:</td>
+          <td>Country:</td>
           <td>
-            <input name="track" type="text" />
-          </td>
-        </tr>
-        <tr>
-          <td>Album:</td>
-          <td>
-            <input name="album" type="text" />
-          </td>
-        </tr>
-        <tr>
-          <td>Year:</td>
-          <td>
-            <input name="year" type="text" />
+            <input name="country" type="text" />
           </td>
         </tr>
         <tr>
@@ -44,10 +32,16 @@
           </td>
         </tr>
         <tr>
+          <td>Years_active:</td>
+          <td>
+            <input name="years" type="text" />
+          </td>
+        </tr>
+        <tr>
             <td><input name="post" type="submit" value="Add"></td>
             <td><input name="put" type="submit" value="Edit"></td>
         </tr>
-        </tbody>
-        </table>
-      </form>
+      </tbody>
+    </table>
+  </form>
 </html>
