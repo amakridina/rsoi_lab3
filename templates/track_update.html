@@ -1,0 +1,49 @@
+{% block body %}
+  <p>For application <b>{{client_name}}</b></p>
+  <form action=/add_edit_track method="GET">
+    <table>
+      <tbody>
+        <tr>
+          <td>ID:</td>
+          <td>
+            <input name="id" type="number" />
+          </td>
+        </tr>
+        <tr>
+          <td>ID_artist:</td>
+          <td>
+            <input name="artist_id" type="number" />
+          </td>
+        </tr>
+        <tr>
+          <td>Track:</td>
+          <td>
+            <input name="track" type="text" />
+          </td>
+        </tr>
+        <tr>
+          <td>Album:</td>
+          <td>
+            <input name="album" type="text" />
+          </td>
+        </tr>
+        <tr>
+          <td>Year:</td>
+          <td>
+            <input name="year" type="text" />
+          </td>
+        </tr>
+        <tr>
+          <td>Genre:</td>
+          <td>
+            <input name="genre" type="text" />
+          </td>
+        </tr>
+        <tr>
+            <td><input name="post" type="submit" value="Добавить"></td>
+            <td><input name="put" type="submit" value="Редактировать"></td>
+        </tr>
+        </tbody>
+        </table>
+      </form>
+{% endblock %}

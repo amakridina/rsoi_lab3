@@ -151,9 +151,81 @@ def get_tracks():
     res = result['items']
     return render_template("list_tracks.html", tracks=res, page=page)
 
+@app.route('/add_edit_track', methods=['GET'])
+def add_edit_track():
+    id = int(request.args.get('id'))
+    if id == 0:
+        return json.dumps({'error_code': 400, 'error_msg': 'Bad Request'}), 400
+    rpost = request.args.get('post')
+    rput = request.args.get('put')
+    res = 200
+    if rpost is not None:
+        res = post_track_by_id(id)
+    if rput is not None:
+        res = put_track_by_id(id)
+    return res
 
-@app.route('/tracks/<id>', methods=['GET', 'POST', 'PUT'])
+@app.route('/tracks/<id>', methods=['GET'])
 def get_track_by_id(id):
+    name, code = get_data_from_cookies()
+    if name is None or code is None:
+        return json.dumps({'error_code': 401, 'error_msg': 'UnAuthorized'}), 401
+    if name == 0 or code == 0:
+        return json.dumps({'error_code': 498, 'error_msg': 'Token expired'}), 498
+    url = get_logic_url("check_session") + "?name={0}&code={1}".format(name, code)
+    result = requests.get(url).json()
+    if 'error_code' in result:
+        code = result['error_code']
+        msg = result['error_msg']
+        return json.dumps({'message': msg, 'error': code}, indent=4), code
+    url = get_logic_url("track") + ("/{0}".format(id))
+    result = requests.get(url).json()
+
+    if 'error_code' in result:
+        code = result['error_code']
+        msg = result['error_msg']
+        return json.dumps({'message': msg, 'error': code}, indent=4), code
+
+    return render_template("track_id.html", track=result)
+
+@app.route('/tracks/<id>', methods=['POST'])
+def post_track_by_id(id):
+    name, code = get_data_from_cookies()
+    if name is None or code is None:
+        return json.dumps({'error_code': 401, 'error_msg': 'UnAuthorized'}), 401
+    if name == 0 or code == 0:
+        return json.dumps({'error_code': 498, 'error_msg': 'Token expired'}), 498
+    url = get_logic_url("check_session") + "?name={0}&code={1}".format(name, code)
+    result = requests.get(url).json()
+    if 'error_code' in result:
+        code = result['error_code']
+        msg = result['error_msg']
+        return json.dumps({'message': msg, 'error': code}, indent=4), code
+    url = get_logic_url("track") + ("/{0}".format(id))
+
+    artist_id = request.args.get('artist_id')
+    track = request.args.get('track')
+    album = request.args.get('album')
+    year = request.args.get('year')
+    genre = request.args.get('genre')
+    if artist_id is None:
+        return json.dumps({'message': 'No artist id', 'error': 400}, indent=4), 400
+    if album is None or track is None or genre is None or year is None:
+        return json.dumps({'message': 'No full information about track', 'error': 400}, indent=4), 400
+    headers = {'Content-type': 'application/json'}
+    data = {'id': id, 'track': track, 'artist_id': artist_id,'album': album, 'year': year, 'genre': genre}
+    result = requests.post(url, data=json.dumps(data), headers=headers).json()
+
+    if 'error_code' in result:
+        code = result['error_code']
+        msg = result['error_msg']
+        return json.dumps({'message': msg, 'error': code}, indent=4), code
+    location = result['Location']
+    return json.dumps({'Location': location}, indent=4), 201
+
+
+@app.route('/tracks/<id>', methods=['PUT'])
+def put_track_by_id(id):
     name, code = get_data_from_cookies()
     print name, code
     if name is None or code is None:
@@ -168,60 +240,40 @@ def get_track_by_id(id):
         return json.dumps({'message': msg, 'error': code}, indent=4), code
     url = get_logic_url("track") + ("/{0}".format(id))
 
-    if request.method == 'GET':
-        result = requests.get(url).json()
-
-    if request.method == 'POST':
+    try:
         artist_id = request.args.get('artist_id')
         track = request.args.get('track')
         album = request.args.get('album')
         year = request.args.get('year')
         genre = request.args.get('genre')
-        if artist_id is None or year is None:
-            return '', 400
-        if album is None or track is None or genre is None:
-            return '', 400
-        headers = {'Content-type': 'application/json'}
-        data = {'id': id, 'track': track, 'artist_id': artist_id,
-                'album': album, 'year': year, 'genre': genre}
-        result = requests.post(url, data=json.dumps(data), headers=headers).json()
-
-    if request.method == "PUT":
-        try:
-            artist_id = request.args.get('artist_id')
-            track = request.args.get('track')
-            album = request.args.get('album')
-            year = request.args.get('year')
-            genre = request.args.get('genre')
-            if artist_id is None and year is None and album is None and track is None and genre is None:
-                raise Exception()
-        except:
-            return '', 400
-        if artist_id == '' and year == '' and album == '' and track == '' and genre == '':
-            return '', 400
-        if artist_id != '':
-            data = {'id': id, 'artist_id': artist_id}
-        if track != '':
-            data = {'id': id, 'track': track}
-        if album != '':
-            data = {'id': id, 'album': album}
-        if year != '':
-            data = {'id': id, 'year': year}
-        if genre != '':
-            data = {'id': id, 'genre': genre}
-        headers = {'Content-type': 'application/json'}
-        result = requests.put(url, data=json.dumps(data), headers=headers).json()
+        if artist_id is None and year is None and album is None and track is None and genre is None:
+            raise Exception()
+    except:
+        return json.dumps({'message': 'No full information about track', 'error': 400}, indent=4), 400
+    if artist_id == '' and year == '' and album == '' and track == '' and genre == '':
+        return json.dumps({'message': 'No any information about track', 'error': 400}, indent=4), 400
+    data = {'id': id}
+    if artist_id != '':
+        data['artist_id'] = artist_id
+    if track != '':
+        data['track'] = track
+    if album != '':
+        data['album'] = album
+    if year != '':
+        data['year'] = year
+    if genre != '':
+        data['genre'] = genre
+    headers = {'Content-type': 'application/json'}
+    result = requests.put(url, data=json.dumps(data), headers=headers).json()
 
     if 'error_code' in result:
         code = result['error_code']
         msg = result['error_msg']
         return json.dumps({'message': msg, 'error': code}, indent=4), code
 
-    if request.method == 'GET':
-        return render_template("track_id.html", track=result)
-    if request.method == 'POST' or request.method == 'PUT':
-        location = result['Location']
-        return json.dumps({'Location': location}, indent=4), 201
+    location = result['Location']
+    return json.dumps({'Location': location}, indent=4), 201
+
 
 @app.route('/tracks/<id>', methods=['DELETE'])
 def delete_track_by_id(id):
@@ -331,7 +383,7 @@ def post_artist(id):
     birthday = request.args.get('birthday')
     country = request.args.get('country')
     if name is None or birthday is None or country is None:
-        return '', 400
+        json.dumps({'message': 'No full information about artist', 'error': 400}, indent=4), 400
 
     url = get_logic_url("artist") + "/{0}".format(id)
     headers = {'Content-type': 'application/json'}
@@ -365,7 +417,7 @@ def put_artist(id):
     birthday = request.args.get('birthday')
     country = request.args.get('country')
     if name == '' and birthday == '' and country == '':
-        return '', 400
+        return json.dumps({'message': 'No any information about artist', 'error': 400}, indent=4), 400
 
     url = get_logic_url("artist") + "/{0}".format(id)
     if name != '':

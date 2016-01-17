@@ -71,7 +71,7 @@ def get_track_by_id(id):
     elif request.method == 'DELETE':
         result = requests.delete(url).json()
     else:
-        data_json = requests.get_json()
+        data_json = request.get_json()
         headers = {'Content-type': 'application/json'}
     if request.method == 'POST':
         result = requests.post(url, data=json.dumps(data_json), headers=headers).json()
