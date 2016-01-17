@@ -118,7 +118,7 @@ def home():
     if 'artist_by_id' in request.form:
         return render_template("ID_artist.html")
     if 'update_artist' in request.form:
-        return render_template("artist_data.html")
+        return render_template("artist_update.html")
     return '', 200
 
 @app.route('/homeanswer', methods=['GET'])
@@ -320,6 +320,21 @@ def get_artists():
     res = result['items']
     return render_template("list_artists.html", artists=res, page=page)
 
+@app.route('/add_edit_artist', methods=['GET'])
+def add_edit_artist():
+    id = int(request.args.get('id'))
+    if id == 0:
+        return json.dumps({'error_code': 400, 'error_msg': 'Bad Request'}), 400
+    rpost = request.args.get('post')
+    rput = request.args.get('put')
+    res = 200
+    if rpost is not None:
+        res = post_artist_by_id(id)
+    if rput is not None:
+        res = put_artist_by_id(id)
+    return res
+
+
 
 @app.route('/artist', methods=['GET'])
 def artist_by_id():
@@ -351,43 +366,29 @@ def get_artist_by_id(id):
     return render_template("artist_by_id.html", artist=result)
 
 
-@app.route('/artist_p', methods=['GET'])
-def artist_p():
-    id = int(request.args.get('artist_id'))
-    if id == 0:
-        return json.dumps({'error_code': 400, 'error_msg': 'Bad Request'}), 400
-    post = request.args.get('post')
-    put = request.args.get('put')
-    res = 200
-    if post is not None:
-        res = post_artist(id)
-    if put is not None:
-        res = put_artist(id)
-    return res
-
-
 @app.route('/artists/<id>', methods=['POST'])
-def post_artist(id):
+def post_artist_by_id(id):
     name, code = get_data_from_cookies()
     if name is None or code is None:
         return json.dumps({'error_code': 401, 'error_msg': 'UnAuthorized'}), 401
     if name == 0 or code == 0:
         return json.dumps({'error_code': 498, 'error_msg': 'Token expired'}), 498
-    url = get_logic_url("check_session") + "?username={0}&code={1}".format(name, code)
+    url = get_logic_url("check_session") + "?name={0}&code={1}".format(name, code)
     result = requests.get(url).json()
     if 'error_code' in result:
         code = result['error_code']
         msg = result['error_msg']
         return json.dumps({'message': msg, 'error': code}, indent=4), code
     name = request.args.get('name')
-    birthday = request.args.get('birthday')
+    genre = request.args.get('genre')
+    years_active = request.args.get('years')
     country = request.args.get('country')
-    if name is None or birthday is None or country is None:
+    if name is None or years_active is None or country is None or genre is None:
         json.dumps({'message': 'No full information about artist', 'error': 400}, indent=4), 400
 
     url = get_logic_url("artist") + "/{0}".format(id)
     headers = {'Content-type': 'application/json'}
-    data = {'name': name, 'birthday': birthday, 'country': country}
+    data = {'name': name, 'genre': genre, 'country': country, 'years':years_active}
 
     result = requests.post(url, data=json.dumps(data), headers=headers).json()
     print result
@@ -401,31 +402,35 @@ def post_artist(id):
 
 
 @app.route('/artists/<id>', methods=['PUT'])
-def put_artist(id):
+def put_artist_by_id(id):
     name, code = get_data_from_cookies()
     if name is None or code is None:
         return json.dumps({'error_code': 401, 'error_msg': 'UnAuthorized'}), 401
     if name == 0 or code == 0:
         return json.dumps({'error_code': 498, 'error_msg': 'Token expired'}), 498
-    url = get_logic_url("check_session") + "?phone={0}&code={1}".format(name, code)
+    url = get_logic_url("check_session") + "?name={0}&code={1}".format(name, code)
     result = requests.get(url).json()
     if 'error_code' in result:
         code = result['error_code']
         msg = result['error_msg']
         return json.dumps({'message': msg, 'error': code}, indent=4), code
     name = request.args.get('name')
-    birthday = request.args.get('birthday')
+    genre = request.args.get('genre')
+    years_active = request.args.get('years')
     country = request.args.get('country')
-    if name == '' and birthday == '' and country == '':
+    if name == '' and genre == '' and country == '' and years_active == '':
         return json.dumps({'message': 'No any information about artist', 'error': 400}, indent=4), 400
 
     url = get_logic_url("artist") + "/{0}".format(id)
+    data = {'id': id}
     if name != '':
-        data = {'artist_id': id, 'name': name}
-    if birthday != '':
-        data = {'artist_id': id, 'birthday': birthday}
+        data['name'] = name
     if country != '':
-        data = {'artist_id': id, 'country': country}
+        data['country'] = country
+    if genre != '':
+        data['genre'] = genre
+    if years_active != '':
+        data['years'] = years_active
     headers = {'Content-type': 'application/json'}
 
     result = requests.put(url, data=json.dumps(data), headers=headers).json()
@@ -435,7 +440,6 @@ def put_artist(id):
         return json.dumps({'message': msg, 'error': code}, indent=4), code
 
     location = result['Location']
-
     return json.dumps({'Location': location}, indent=4), 200
 
 
@@ -446,14 +450,14 @@ def me():
         return json.dumps({'error_code': 401, 'error_msg': 'UnAuthorized'}), 401
     if name == 0 or code == 0:
         return json.dumps({'error_code': 498, 'error_msg': 'Token expired'}), 498
-    url = get_logic_url("check_session") + "?phone={0}&code={1}".format(name, code)
+    url = get_logic_url("check_session") + "?name={0}&code={1}".format(name, code)
     result = requests.get(url).json()
     if 'error_code' in result:
         code = result['error_code']
         msg = result['error_msg']
         return json.dumps({'message': msg, 'error': code}, indent=4), code
     print result
-    url = get_logic_url("get_me") + "?phone={0}".format(name)
+    url = get_logic_url("get_me") + "?name={0}".format(name)
     result = requests.get(url).json()
 
     if 'error_code' in result:

@@ -39,14 +39,14 @@ def get_artist_id(id):
         data_json = request.get_json()
         try:
             name = data_json['name']
-            years = data_json['years_active']
-            origin = data_json['origin']
+            years = data_json['years']
+            origin = data_json['country']
             genre = data_json['genre']
             if name is None or years is None or origin is None or genre is None:
                 raise Exception()
         except:
             return json.dumps({'error_code': 400, 'error_msg': 'Bad Request'})
-        i = insert_artist(id, name,years ,origin, genre)
+        i = insert_artist(id, name, years, origin, genre)
         if i == 0:
             return json.dumps({'error_code': 400, 'error_msg': 'Bad Request'})
         s = '/artist/{'+id+'}'
@@ -58,29 +58,29 @@ def get_artist_id(id):
 
     if request.method == 'PUT':
         data_json = request.get_json()
-        name = 0
-        years = 0
-        origin = 0
-        genre = 0
+        name = None
+        years = None
+        country = None
+        genre = None
 
-        if name in data_json:
+        if 'name' in data_json:
             name = data_json['name']
-        if years in data_json:
-            years = data_json['years_active']
-        if origin in data_json:
-            origin = data_json['origin']
-        if genre in data_json:
-            genre = data_json['genres']
-        if name == 0 and years == 0 and origin == 0 and genre == 0:
+        if 'years' in data_json:
+            years = data_json['years']
+        if 'country' in data_json:
+            country = data_json['country']
+        if 'genre' in data_json:
+            genre = data_json['genre']
+        if name == 0 and years == 0 and country == 0 and genre == 0:
             return json.dumps({'error_code': 400, 'error_msg': 'Bad Request'})
 
-        if name != 0:
+        if name is not None:
             i = update_artist(id, 'name', name)
-        if years != 0:
+        if years is not None:
             i = update_artist(id, 'years_active', years)
-        if origin != 0:
-            i = update_artist(id, 'origin', origin)
-        if genre != 0:
+        if country is not None:
+            i = update_artist(id, 'origin', country)
+        if genre is not None:
             i = update_artist(id, 'genres', genre)
         if i == 0:
             return '', 400

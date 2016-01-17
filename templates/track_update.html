@@ -1,5 +1,9 @@
-{% block body %}
-  <p>For application <b>{{client_name}}</b></p>
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+  <p>For application <b>{{name}}</b></p>
   <form action=/add_edit_track method="GET">
     <table>
       <tbody>
@@ -40,10 +44,10 @@
           </td>
         </tr>
         <tr>
-            <td><input name="post" type="submit" value="Добавить"></td>
-            <td><input name="put" type="submit" value="Редактировать"></td>
+            <td><input name="post" type="submit" value="Add"></td>
+            <td><input name="put" type="submit" value="Edit"></td>
         </tr>
         </tbody>
         </table>
       </form>
-{% endblock %}
+</html>
