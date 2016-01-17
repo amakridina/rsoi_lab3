@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    <form action=/directors method="GET">
+        <table><tbody>
+        <td>ID_artist</td><td>Name</td><td>Track</td></tr>
+        {% for artist in artists %}
+        <tr>
+            <td>{{artist.artist_id}}</td>
+            <td>{{artist.name}}</td>
+            <td>{{artist.track}}</td>
+        </tr>
+
+        {% endfor %}
+
+            </tbody></table>
+        <br>
+        Page: {{page}}
+        <br>
+        <input type="submit" value="Prev" name="prev">
+        <input type="submit" value="Next" name="next">
+    </form>
+</body>
+</html>

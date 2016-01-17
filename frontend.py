@@ -318,7 +318,7 @@ def get_artists():
         return json.dumps({'message': msg, 'error': code}, indent=4), code
 
     res = result['items']
-    return render_template("artists_show.html", artists=res, page=page)
+    return render_template("list_artists.html", artists=res, page=page)
 
 
 @app.route('/artist', methods=['GET'])

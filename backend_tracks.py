@@ -5,7 +5,7 @@ from db import *
 
 app = Flask(__name__)
 
-@app.route('/tracks/', methods=['GET'])
+@app.route('/tracks', methods=['GET'])
 def get_tracks():
 
     try:
@@ -116,6 +116,14 @@ def delete_track(id):
         return json.dumps({'error_code': 404, 'error_msg': 'Not Found'})
     #del_track(id)
     return json.dumps({'ok' : 'ok'})
+
+@app.route("/tracks_for_artist", methods=['GET'])
+def tracks_for_artist():
+    items = films_for_dir()
+    if items is None:
+        return json.dumps({'error_code': 404, 'error_msg': 'Not Found'})
+    return json.dumps({
+        'items': items})
 
 if __name__ == "__main__":
  app.run(debug=True, port=27014)

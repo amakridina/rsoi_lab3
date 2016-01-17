@@ -86,24 +86,24 @@ def get_track_by_id(id):
 def get_artists():
     try:
         per_page_artist = int(request.args.get('per_page'))
-        url = get_artist_url("get_artist") + "?per_page={0}".format(per_page_artist)
+        url = get_artist_url("artists") + "?per_page={0}".format(per_page_artist)
         result = requests.get(url).json()
         page_artist = int(request.args.get('page'))
     except:
         return json.dumps({'error_code': 400, 'error_msg': 'Bad Request'})
-    url = get_track_url("get_tracks_artist")
+    url = get_track_url("tracks_for_artist")
     result_track = requests.get(url).json()
     o1 = result_track['items'];  a1 = o1[1]
-    o2 = result['items']; a2 =o2[1]
+    o2 = result['items']; a2 = o2[1]
     items = []
     for i1 in range(0, len(o1)):
         for i2 in range(0, len(o2)):
             a1 = o1[i1]; a2 = o2[i2]
-            if a1['id_artist']== a2['id_artist']:
+            if a1['artist_id']== a2['artist_id']:
                 items.append({
-                'id_artist': a2['id_artist'],
+                'artist_id': a2['artist_id'],
                 'name': a2['name'],
-                'title': a1['title']})
+                'track': a1['track']})
     items = items[(page_artist-1)*per_page_artist:page_artist*per_page_artist]
     if items is None:
         return json.dumps({'error_code': 404, 'error_msg': 'Not Found'})

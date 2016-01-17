@@ -129,6 +129,20 @@ def update_artist(id, str, value):
         return 0
     return 1
 
+
+def films_for_dir():
+    items = []
+    cursor = Tracks_db_conn()
+    cursor.execute("select * from Tracks")
+    rows = cursor.fetchall()
+    for row in rows:
+            items.append({
+            'artist_id': row.artist_id,
+            'track': row.track,
+            })
+    return items;
+
+
 def track_by_id(id):
     cursor = Tracks_db_conn()
     cursor.execute("select * from tracks where track_id=" + id)
