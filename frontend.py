@@ -117,7 +117,7 @@ def home():
         return render_template("track_update.html")
     if 'artist_by_id' in request.form:
         return render_template("ID_artist.html")
-    if 'p_artists' in request.form:
+    if 'update_artist' in request.form:
         return render_template("artist_data.html")
     return '', 200
 
@@ -329,12 +329,12 @@ def artist_by_id():
 
 @app.route('/artists/<id>', methods=['GET'])
 def get_artist_by_id(id):
-    phone, code = get_data_from_cookies()
-    if phone is None or code is None:
+    name, code = get_data_from_cookies()
+    if name is None or code is None:
         return json.dumps({'error_code': 401, 'error_msg': 'UnAuthorized'}), 401
-    if phone == 0 or code == 0:
+    if name == 0 or code == 0:
         return json.dumps({'error_code': 498, 'error_msg': 'Token expired'}), 498
-    url = get_logic_url("check_session") + "?phone={0}&code={1}".format(phone, code)
+    url = get_logic_url("check_session") + "?name={0}&code={1}".format(name, code)
     result = requests.get(url).json()
     if 'error_code' in result:
         code = result['error_code']
@@ -368,12 +368,12 @@ def artist_p():
 
 @app.route('/artists/<id>', methods=['POST'])
 def post_artist(id):
-    phone, code = get_data_from_cookies()
-    if phone is None or code is None:
+    name, code = get_data_from_cookies()
+    if name is None or code is None:
         return json.dumps({'error_code': 401, 'error_msg': 'UnAuthorized'}), 401
-    if phone == 0 or code == 0:
+    if name == 0 or code == 0:
         return json.dumps({'error_code': 498, 'error_msg': 'Token expired'}), 498
-    url = get_logic_url("check_session") + "?username={0}&code={1}".format(phone, code)
+    url = get_logic_url("check_session") + "?username={0}&code={1}".format(name, code)
     result = requests.get(url).json()
     if 'error_code' in result:
         code = result['error_code']
@@ -402,12 +402,12 @@ def post_artist(id):
 
 @app.route('/artists/<id>', methods=['PUT'])
 def put_artist(id):
-    phone, code = get_data_from_cookies()
-    if phone is None or code is None:
+    name, code = get_data_from_cookies()
+    if name is None or code is None:
         return json.dumps({'error_code': 401, 'error_msg': 'UnAuthorized'}), 401
-    if phone == 0 or code == 0:
+    if name == 0 or code == 0:
         return json.dumps({'error_code': 498, 'error_msg': 'Token expired'}), 498
-    url = get_logic_url("check_session") + "?phone={0}&code={1}".format(phone, code)
+    url = get_logic_url("check_session") + "?phone={0}&code={1}".format(name, code)
     result = requests.get(url).json()
     if 'error_code' in result:
         code = result['error_code']
@@ -441,19 +441,19 @@ def put_artist(id):
 
 @app.route('/me', methods=['GET'])
 def me():
-    phone, code = get_data_from_cookies()
-    if phone is None or code is None:
+    name, code = get_data_from_cookies()
+    if name is None or code is None:
         return json.dumps({'error_code': 401, 'error_msg': 'UnAuthorized'}), 401
-    if phone == 0 or code == 0:
+    if name == 0 or code == 0:
         return json.dumps({'error_code': 498, 'error_msg': 'Token expired'}), 498
-    url = get_logic_url("check_session") + "?phone={0}&code={1}".format(phone, code)
+    url = get_logic_url("check_session") + "?phone={0}&code={1}".format(name, code)
     result = requests.get(url).json()
     if 'error_code' in result:
         code = result['error_code']
         msg = result['error_msg']
         return json.dumps({'message': msg, 'error': code}, indent=4), code
     print result
-    url = get_logic_url("get_me") + "?phone={0}".format(phone)
+    url = get_logic_url("get_me") + "?phone={0}".format(name)
     result = requests.get(url).json()
 
     if 'error_code' in result:

@@ -114,7 +114,7 @@ def get_artists():
 
 @app.route("/artist/<id>", methods=['GET', 'POST','PUT'])
 def get_artist(id):
-    url = get_artist_url("get_artist") + "/{0}".format(id)
+    url = get_artist_url("artist") + "/{0}".format(id)
     if request.method == 'GET':
         result = requests.get(url).json()
     else:
