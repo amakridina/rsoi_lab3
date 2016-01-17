@@ -113,8 +113,8 @@ def home_form():
 def home():
     if 'track_by_id' in request.form:
         return render_template("ID_track.html")
-    if 'p_tracks' in request.form:
-        return render_template("track_data.html")
+    if 'update_track' in request.form:
+        return render_template("track_update.html")
     if 'artist_by_id' in request.form:
         return render_template("ID_artist.html")
     if 'p_artists' in request.form:
@@ -243,7 +243,7 @@ def delete_track_by_id(id):
         code = result['error_code']
         msg = result['error_msg']
         return json.dumps({'message': msg, 'error': code}, indent=4), code
-    return 'ok', 200
+    return json.dumps({'ok' : 'ok'})
 
 @app.route('/artists', methods=['GET'])
 def get_artists():

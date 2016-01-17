@@ -115,8 +115,7 @@ def delete_track(id):
     if row == 0:
         return json.dumps({'error_code': 404, 'error_msg': 'Not Found'})
     #del_track(id)
-    s = '/tracks/{'+id+'}'
-    return json.dumps({'Location': s})
+    return json.dumps({'ok' : 'ok'})
 
 if __name__ == "__main__":
  app.run(debug=True, port=27014)
