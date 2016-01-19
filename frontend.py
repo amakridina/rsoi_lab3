@@ -49,7 +49,10 @@ def login():
             username = request.form['username']
             password = request.form['password']
             url = get_logic_url("authorize") + "?username={0}&password={1}".format(username, password)
-            result = requests.get(url).json()
+            try:
+                result = requests.get(url).json()
+            except:
+                return json.dumps({'error_code': 503, 'error_msg': 'Service Session Temporary Unavailable'})
             if 'error_code' in result:
                 code = result['error_code']
                 msg = result['error_msg']
@@ -60,7 +63,6 @@ def login():
             response.set_cookie('Expires', "{0}".format(datetime.now()+timedelta(minutes=10)))
             response.set_cookie('token', result['code'])
             response.set_cookie('login', username)
-            print response
             return response
         return redirect(url_for('home_form'))
     return render_template('auth.html', errorInfo=error_info)
@@ -93,8 +95,8 @@ def register():
 
 @app.route("/logout", methods=['GET'])
 def logout():
-    phone, code = get_data_from_cookies()
-    if phone is None or code is None:
+    name, code = get_data_from_cookies()
+    if name is None or code is None:
         return render_template("home.html")
     clear_data_in_cookies()
     response = make_response(redirect(url_for('home_form')))
@@ -143,7 +145,10 @@ def get_tracks():
         page = 1
     per_page = 5
     url = get_logic_url("tracks") + ("?page={0}&per_page={1}".format(page, per_page))
-    result = requests.get(url).json()
+    try:
+        result = requests.get(url).json()
+    except:
+        return json.dumps({'message': 'Service Logic Temporary Unavailable', 'error': 503}, indent=4), 503
     if 'error_code' in result:
         code = result['error_code']
         msg = result['error_msg']
@@ -173,13 +178,19 @@ def get_track_by_id(id):
     if name == 0 or code == 0:
         return json.dumps({'error_code': 498, 'error_msg': 'Token expired'}), 498
     url = get_logic_url("check_session") + "?name={0}&code={1}".format(name, code)
-    result = requests.get(url).json()
+    try:
+        result = requests.get(url).json()
+    except:
+        return json.dumps({'message': 'Service Logic Temporary Unavailable', 'error': 503}, indent=4), 503
     if 'error_code' in result:
         code = result['error_code']
         msg = result['error_msg']
         return json.dumps({'message': msg, 'error': code}, indent=4), code
     url = get_logic_url("track") + ("/{0}".format(id))
-    result = requests.get(url).json()
+    try:
+        result = requests.get(url).json()
+    except:
+        return json.dumps({'message': 'Service Logic Temporary Unavailable', 'error': 503}, indent=4), 503
 
     if 'error_code' in result:
         code = result['error_code']
@@ -196,7 +207,10 @@ def post_track_by_id(id):
     if name == 0 or code == 0:
         return json.dumps({'error_code': 498, 'error_msg': 'Token expired'}), 498
     url = get_logic_url("check_session") + "?name={0}&code={1}".format(name, code)
-    result = requests.get(url).json()
+    try:
+        result = requests.get(url).json()
+    except:
+        return json.dumps({'message': 'Service Logic Temporary Unavailable', 'error': 503}, indent=4), 503
     if 'error_code' in result:
         code = result['error_code']
         msg = result['error_msg']
@@ -214,7 +228,10 @@ def post_track_by_id(id):
         return json.dumps({'message': 'No full information about track', 'error': 400}, indent=4), 400
     headers = {'Content-type': 'application/json'}
     data = {'id': id, 'track': track, 'artist_id': artist_id,'album': album, 'year': year, 'genre': genre}
-    result = requests.post(url, data=json.dumps(data), headers=headers).json()
+    try:
+        result = requests.post(url, data=json.dumps(data), headers=headers).json()
+    except:
+        return json.dumps({'message': 'Service Logic Temporary Unavailable', 'error': 503}, indent=4), 503
 
     if 'error_code' in result:
         code = result['error_code']
@@ -233,7 +250,10 @@ def put_track_by_id(id):
     if name == 0 or code == 0:
         return json.dumps({'error_code': 498, 'error_msg': 'Token expired'}), 498
     url = get_logic_url("check_session") + "?name={0}&code={1}".format(name, code)
-    result = requests.get(url).json()
+    try:
+        result = requests.get(url).json()
+    except:
+        return json.dumps({'message': 'Service Logic Temporary Unavailable', 'error': 503}, indent=4), 503
     if 'error_code' in result:
         code = result['error_code']
         msg = result['error_msg']
@@ -264,7 +284,10 @@ def put_track_by_id(id):
     if genre != '':
         data['genre'] = genre
     headers = {'Content-type': 'application/json'}
-    result = requests.put(url, data=json.dumps(data), headers=headers).json()
+    try:
+        result = requests.put(url, data=json.dumps(data), headers=headers).json()
+    except:
+        return json.dumps({'message': 'Service Logic Temporary Unavailable', 'error': 503}, indent=4), 503
 
     if 'error_code' in result:
         code = result['error_code']
@@ -284,13 +307,19 @@ def delete_track_by_id(id):
     if name == 0 or code == 0:
         return json.dumps({'error_code': 498, 'error_msg': 'Token expired'}), 498
     url = get_logic_url("check_session") + "?name={0}&code={1}".format(name, code)
-    result = requests.get(url).json()
+    try:
+        result = requests.get(url).json()
+    except:
+        return json.dumps({'message': 'Service Logic Temporary Unavailable', 'error': 503}, indent=4), 503
     if 'error_code' in result:
         code = result['error_code']
         msg = result['error_msg']
         return json.dumps({'message': msg, 'error': code}, indent=4), code
     url = get_logic_url("track") + ("/{0}".format(id))
-    result = requests.delete(url)
+    try:
+        result = requests.delete(url)
+    except:
+        return json.dumps({'message': 'Service Logic Temporary Unavailable', 'error': 503}, indent=4), 503
     if 'error_code' in result:
         code = result['error_code']
         msg = result['error_msg']
@@ -311,7 +340,10 @@ def get_artists():
     per_page = 5
     url = get_logic_url("artists") + ("?page={0}&per_page={1}".format(page, per_page))
 
-    result = requests.get(url).json()
+    try:
+        result = requests.get(url).json()
+    except:
+        return json.dumps({'message': 'Service Logic Temporary Unavailable', 'error': 503}, indent=4), 503
     if 'error_code' in result:
         code = result['error_code']
         msg = result['error_msg']
@@ -350,14 +382,20 @@ def get_artist_by_id(id):
     if name == 0 or code == 0:
         return json.dumps({'error_code': 498, 'error_msg': 'Token expired'}), 498
     url = get_logic_url("check_session") + "?name={0}&code={1}".format(name, code)
-    result = requests.get(url).json()
+    try:
+        result = requests.get(url).json()
+    except:
+        return json.dumps({'message': 'Service Logic Temporary Unavailable', 'error': 503}, indent=4), 503
     if 'error_code' in result:
         code = result['error_code']
         msg = result['error_msg']
         return json.dumps({'message': msg, 'error': code}, indent=4), code
     url = get_logic_url("artist") + "/{0}".format(id)
 
-    result = requests.get(url).json()
+    try:
+        result = requests.get(url).json()
+    except:
+        return json.dumps({'message': 'Service Logic Temporary Unavailable', 'error': 503}, indent=4), 503
     print result
     if 'error_code' in result:
         code = result['error_code']
@@ -374,7 +412,10 @@ def post_artist_by_id(id):
     if name == 0 or code == 0:
         return json.dumps({'error_code': 498, 'error_msg': 'Token expired'}), 498
     url = get_logic_url("check_session") + "?name={0}&code={1}".format(name, code)
-    result = requests.get(url).json()
+    try:
+        result = requests.get(url).json()
+    except:
+        return json.dumps({'message': 'Service Logic Temporary Unavailable', 'error': 503}, indent=4), 503
     if 'error_code' in result:
         code = result['error_code']
         msg = result['error_msg']
@@ -390,7 +431,10 @@ def post_artist_by_id(id):
     headers = {'Content-type': 'application/json'}
     data = {'name': name, 'genre': genre, 'country': country, 'years':years_active}
 
-    result = requests.post(url, data=json.dumps(data), headers=headers).json()
+    try:
+        result = requests.post(url, data=json.dumps(data), headers=headers).json()
+    except:
+        return json.dumps({'message': 'Service Logic Temporary Unavailable', 'error': 503}, indent=4), 503
     print result
     if 'error_code' in result:
         code = result['error_code']
@@ -409,7 +453,10 @@ def put_artist_by_id(id):
     if name == 0 or code == 0:
         return json.dumps({'error_code': 498, 'error_msg': 'Token expired'}), 498
     url = get_logic_url("check_session") + "?name={0}&code={1}".format(name, code)
-    result = requests.get(url).json()
+    try:
+        result = requests.get(url).json()
+    except:
+        return json.dumps({'message': 'Service Logic Temporary Unavailable', 'error': 503}, indent=4), 503
     if 'error_code' in result:
         code = result['error_code']
         msg = result['error_msg']
@@ -433,7 +480,10 @@ def put_artist_by_id(id):
         data['years'] = years_active
     headers = {'Content-type': 'application/json'}
 
-    result = requests.put(url, data=json.dumps(data), headers=headers).json()
+    try:
+        result = requests.put(url, data=json.dumps(data), headers=headers).json()
+    except:
+        return json.dumps({'message': 'Service Logic Temporary Unavailable', 'error': 503}, indent=4), 503
     if 'error_code' in result:
         code = result['error_code']
         msg = result['error_msg']
@@ -446,19 +496,28 @@ def put_artist_by_id(id):
 @app.route('/me', methods=['GET'])
 def me():
     name, code = get_data_from_cookies()
+    print name, code
     if name is None or code is None:
         return json.dumps({'error_code': 401, 'error_msg': 'UnAuthorized'}), 401
     if name == 0 or code == 0:
         return json.dumps({'error_code': 498, 'error_msg': 'Token expired'}), 498
     url = get_logic_url("check_session") + "?name={0}&code={1}".format(name, code)
-    result = requests.get(url).json()
+
+    try:
+        result = requests.get(url).json()
+    except:
+        return json.dumps({'message': 'Service Logic Temporary Unavailable', 'error': 503}, indent=4), 503
     if 'error_code' in result:
         code = result['error_code']
         msg = result['error_msg']
         return json.dumps({'message': msg, 'error': code}, indent=4), code
     print result
     url = get_logic_url("get_me") + "?name={0}".format(name)
-    result = requests.get(url).json()
+
+    try:
+        result = requests.get(url).json()
+    except:
+        return json.dumps({'message': 'Service Logic Temporary Unavailable', 'error': 503}, indent=4), 503
 
     if 'error_code' in result:
         code = result['error_code']
