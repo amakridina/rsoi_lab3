@@ -18,7 +18,7 @@ def users_db_conn():
 
 def user_exist(username, password):
     cursor = users_db_conn()
-    cursor.execute("select * from Users where UserName='" + username+"' and Password='"+ password+"'")
+    cursor.execute("select * from UsersInfo where UserName='" + username+"' and Password='"+ password+"'")
     row = cursor.fetchone()
     if row:
         return 1
@@ -27,7 +27,7 @@ def user_exist(username, password):
 
 def insert_user(username, first_name, last_name, tel, email, password):
     db = users_db_conn()
-    insert_str  = ("insert into Users"+
+    insert_str  = ("insert into UsersInfo"+
                        " (UserName, FirstName, LastName, Telephone, Email, Password)"+
                        " values ('%s','%s','%s','%s','%s','%s' )"
                        % (username, first_name, last_name, tel, email, password))
@@ -38,7 +38,7 @@ def insert_user(username, first_name, last_name, tel, email, password):
 def insert_code(code, username):
     try:
         cursor = users_db_conn()
-        cursor.execute("update Tokens set AccessToken='"+code+"' where UserName='" + username+"'")
+        cursor.execute("update UsersInfo set Token='"+code+"' where UserName='" + username+"'")
         cursor.commit()
     except ValueError:
         return 1
@@ -46,7 +46,7 @@ def insert_code(code, username):
         return 0
     return 1;
 
-def len_db():
+def len_db_tracks():
     cursor = Tracks_db_conn()
     cursor.execute("select count(*) from tracks")
     row = cursor.fetchone()
@@ -55,17 +55,36 @@ def len_db():
     else:
         return 0;
 
+def len_db_artists():
+    cursor = Tracks_db_conn()
+    cursor.execute("select count(*) from artists")
+    row = cursor.fetchone()
+    if row:
+        return row[0]
+    else:
+        return 0;
+
 ###############################################
+def len_db_tracks():
+    count = 0
+    cursor = Tracks_db_conn()
+    cursor.execute("select * from tracks")
+    rows = cursor.fetchall()
+    for row in rows:
+        count += 1
+    return count
+
 def tracks_from_db(page, per_page):
     items = []
     cursor = Tracks_db_conn()
     cursor.execute("select * from tracks")
     rows = cursor.fetchall()
-    i = 0
-    for row in rows:
-        if i < page * per_page:
-            text = row.track
-            items.append({
+    end = page * per_page
+    if end > len(rows):
+        end = len(rows)
+    for i in range((page -1) * per_page, end):
+        row = rows[i]
+        items.append({
             'id': row.track_id,
             'track': row.track,
             'artist_id': row.artist_id,
@@ -73,32 +92,33 @@ def tracks_from_db(page, per_page):
             'year': row.year,
             'genre':row.genre
             })
-            i += 1
-        if i >= (page + 1) * per_page:
-            i += 1
-            break
-    return items;
+    return items
 
 def len_db_artist():
-    count = 0;
+    count = 0
     cursor = Tracks_db_conn()
     cursor.execute("select * from artists")
     rows = cursor.fetchall()
     for row in rows:
         count += 1
-    return count;
+    return count
 
-def artist_from_db():
+def artists_from_db(page, per_page):
+    items = []
     cursor = Tracks_db_conn()
     cursor.execute("select * from artists")
     rows = cursor.fetchall()
-    items= []
-    for row in rows:
+    end = page * per_page
+    if end > len(rows):
+        end = len(rows)
+    for i in range((page -1) * per_page, end):
+        row = rows[i]
         items.append({
         'artist_id': row.artist_id,
         'name': row.name,
+        'count': len_db_artist()
         })
-    return items;
+    return items
 
 def artist_by_id(id):
     cursor = Tracks_db_conn()
@@ -184,10 +204,10 @@ def del_track(id):
 ###########################
 def user_connected(user, code):
     cursor = users_db_conn()
-    cursor.execute("select * from Tokens where UserName='" + user+"'")
+    cursor.execute("select * from UsersInfo where UserName='" + user+"'")
     row = cursor.fetchone()
     if row:
-        if row.AccessToken == code:
+        if row.Token == code:
             return 1
     return 0
 
@@ -195,7 +215,7 @@ def user_connected(user, code):
 
 def get_me(username):
     DB = users_db_conn()
-    select_str = ("select * from Users where UserName = '%s'" % username)
+    select_str = ("select * from UsersInfo where UserName = '%s'" % username)
     cursor = DB.execute(select_str)
     row = cursor.fetchone()
     if not row:

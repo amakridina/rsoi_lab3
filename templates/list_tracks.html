@@ -4,8 +4,9 @@
     <title></title>
 </head>
 <body>
-    <form action=/films method="GET">
-        <table><tbody>
+    <form>
+        <table>
+		<tbody>
         <tr><td>ID</td><td>ID_artist</td><td>Track</td></tr>
         {% for track in tracks %}
         <tr>
@@ -13,15 +14,18 @@
             <td>{{track.artist_id}}</td>
             <td>{{track.track}}</td>
         </tr>
-
         {% endfor %}
-
-            </tbody></table>
+        </tbody>
+		</table>
         <br>
         Page: {{page}}
         <br>
-        <input type="submit" value="Prev" name="prev">
-        <input type="submit" value="Next" name="next">
+		{% if page>1 %}
+		<a href="/tracks?page={{page-1}}&page_count={{page_count}}">Prev</a>
+		{% endif %}
+		{% if page < page_count %}
+		<a href="/tracks?page={{page+1}}&page_count={{page_count}}">Next</a>
+		{% endif %}
     </form>
 </body>
 </html>

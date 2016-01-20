@@ -4,7 +4,7 @@
     <title></title>
 </head>
 <body>
-    <form action=/artists method="GET">
+    <form>
         <table><tbody>
         <td>ID_artist</td><td>Name</td></tr>
         {% for artist in artists %}
@@ -17,8 +17,12 @@
         <br>
         Page: {{page}}
         <br>
-        <input type="submit" value="Prev" name="prev">
-        <input type="submit" name="next">
+		{% if page>0 %}
+		<a href="/artists?page={{page-1}}&page_count={{page_count}}">Prev</a>
+		{% endif %}
+		{% if page < page_count %}
+		<a href="/artists?page={{page+1}}&page_count={{page_count}}">Next</a>
+		{% endif %}
     </form>
 </body>
 </html>

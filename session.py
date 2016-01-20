@@ -15,12 +15,13 @@ def add_user_db():
     tel = my_json['phone']
     email = my_json['email']
     password = my_json['password']
-    if user_exist(username):
+    if user_exist(username, password):
         return json.dumps({'error_code': 400, 'error_msg': 'User already exists'}, {
         'Content-Type': 'application/json;charset=UTF-8',
     })
-    i = insert_user(username, fname, lname, tel, email, password)
-    if i == 0:
+    try:
+        insert_user(username, fname, lname, tel, email, password)
+    except:
         return json.dumps({'error_code': 500, 'error_msg': 'Database error'})
     return json.dumps({'ok': 'ok'})
 
@@ -43,11 +44,11 @@ def me():
     row = get_me(name)
     if row == 0:
         return json.dumps({'error_code': 500, 'error_msg': 'Server Error'})
-    return jsonify(UserName=row.UserName,
-                FirstName=row.FirstName,
-                LastName=row.LastName,
-                Telephone=row.Telephone,
-                Email=row.Email)
+    return jsonify(name=row.UserName,
+                fname=row.FirstName,
+                lname=row.LastName,
+                tel=row.Telephone,
+                email=row.Email)
 
 
 @app.route("/check_session", methods=['GET'])

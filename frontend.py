@@ -90,7 +90,7 @@ def register():
             msg = result['error_msg']
             return json.dumps({'message': msg, 'error': code}, indent=4), code
         return render_template("authorize.html")
-    render_template('register.html', errorInfo=error_info)
+    return render_template('register.html', errorInfo=error_info)
 
 
 @app.route("/logout", methods=['GET'])
@@ -135,15 +135,12 @@ def home_answer():
 @app.route('/tracks', methods=['GET'])
 def get_tracks():
     global page
-    next = request.args.get('next')
-    prev = request.args.get('prev')
-    if prev is not None:
-        page -= 1
-    elif next is not None:
-        page += 1
-    else:
+    page = request.args.get('page')
+    if page is None:
         page = 1
-    per_page = 5
+    else:
+        page = int(page)
+    per_page = 2
     url = get_logic_url("tracks") + ("?page={0}&per_page={1}".format(page, per_page))
     try:
         result = requests.get(url).json()
@@ -154,7 +151,8 @@ def get_tracks():
         msg = result['error_msg']
         return json.dumps({'message': msg, 'error': code}, indent=4), code
     res = result['items']
-    return render_template("list_tracks.html", tracks=res, page=page)
+    page_count = int(result['page_count'])
+    return render_template("list_tracks.html", tracks=res, page=page, page_count = page_count)
 
 @app.route('/add_edit_track', methods=['GET'])
 def add_edit_track():
@@ -329,15 +327,12 @@ def delete_track_by_id(id):
 @app.route('/artists', methods=['GET'])
 def get_artists():
     global page
-    next = request.args.get('next')
-    prev = request.args.get('prev')
-    if prev is not None:
-        page -= 1
-    elif next is not None:
-        page += 1
-    else:
+    page = request.args.get('page')
+    if page is None:
         page = 1
-    per_page = 5
+    else:
+        page = int(page)
+    per_page = 3
     url = get_logic_url("artists") + ("?page={0}&per_page={1}".format(page, per_page))
 
     try:
@@ -350,7 +345,8 @@ def get_artists():
         return json.dumps({'message': msg, 'error': code}, indent=4), code
 
     res = result['items']
-    return render_template("list_artists.html", artists=res, page=page)
+    page_count = int(result['page_count'])
+    return render_template("list_artists.html", artists=res, page=page, page_count=page_count)
 
 @app.route('/add_edit_artist', methods=['GET'])
 def add_edit_artist():
@@ -524,9 +520,7 @@ def me():
         msg = result['error_msg']
         return json.dumps({'message': msg, 'error': code}, indent=4), code
 
-    return json.dumps(result, indent=4), 200, {
-            'Content-Type': 'application/json;charset=UTF-8',
-        }
+    return render_template("userInfo.html", user=result)
 
 if __name__ == "__main__":
     page = 1

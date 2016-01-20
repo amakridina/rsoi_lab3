@@ -7,19 +7,28 @@ app = Flask(__name__)
 
 @app.route('/artists', methods=['GET'])
 def get_artist():
-    per_page = int(request.args.get('per_page'))
-    items = artist_from_db()
+    try:
+        per_page = int(request.args.get('per_page'))
+        page = int(request.args.get('page'))
+        lendb = len_db_artists()
+        if lendb % per_page > 0:
+            b = 1
+        else:
+            b = 0
+        if page < 0 or page > lendb / per_page + b:
+            raise Exception()
+    except:
+        return json.dumps({'error_code': 400, 'error_msg': 'Bad Request'})
+
+    items = []
+    items = artists_from_db(page, per_page)
     if items is None:
-        return json.dumps({'error_code': 500, 'error_msg': 'Database error'})
-    lendb = len_db_artist()
-    print lendb
-    if lendb % per_page > 0:
-        b = 1
-    else:
-        b = 0
-    page_count = lendb / per_page + b
+        return json.dumps({'error_code': 404, 'error_msg': 'Not Found'})
     return json.dumps({
-        'items': items, 'page_count': page_count})
+        'items': items,
+        'per_page': per_page,
+        'page': page,
+        'page_count': math.ceil(lendb / per_page + b)})
 
 @app.route('/artist/<id>', methods=['GET', 'POST', 'PUT'])
 def get_artist_id(id):

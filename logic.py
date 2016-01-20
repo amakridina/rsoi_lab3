@@ -82,7 +82,7 @@ def get_track_by_id(id):
             return json.dumps({'error_code': 503, 'error_msg': 'Service Tracks Temporary Unavailable'})
         json1 = json.dumps(result)
 
-        url = get_artist_url("artist") + "/{0}".format(id)
+        url = get_artist_url("artist") + "/{0}".format(result['artist_id'])
         try:
             res = requests.get(url).json()
         except:
@@ -125,33 +125,6 @@ def get_artists():
         return json.dumps({'error_code': 503, 'error_msg': 'Service Artists Temporary Unavailable'})
     json1 = json.dumps(result)
     return json1
-    # try:
-    #     per_page_artist = int(request.args.get('per_page'))
-    #     url = get_artist_url("artists") + "?per_page={0}".format(per_page_artist)
-    #     result = requests.get(url).json()
-    #     page_artist = int(request.args.get('page'))
-    # except:
-    #     return json.dumps({'error_code': 400, 'error_msg': 'Bad Request'})
-    # url = get_track_url("tracks_for_artist")
-    # result_track = requests.get(url).json()
-    # o1 = result_track['items'];  a1 = o1[1]
-    # o2 = result['items']; a2 = o2[1]
-    # items = []
-    # for i1 in range(0, len(o1)):
-    #     for i2 in range(0, len(o2)):
-    #         a1 = o1[i1]; a2 = o2[i2]
-    #         if a1['artist_id']== a2['artist_id']:
-    #             items.append({
-    #             'artist_id': a2['artist_id'],
-    #             'name': a2['name'],
-    #             'track': a1['track']})
-    # items = items[(page_artist-1)*per_page_artist:page_artist*per_page_artist]
-    # if items is None:
-    #     return json.dumps({'error_code': 404, 'error_msg': 'Not Found'})
-    # return json.dumps({
-    #     'items': items,
-    #     'per_page': per_page_artist,
-    #     'page': page_artist})
 
 @app.route("/artist/<id>", methods=['GET', 'POST','PUT'])
 def get_artist(id):

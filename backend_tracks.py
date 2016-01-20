@@ -11,7 +11,7 @@ def get_tracks():
     try:
         per_page = int(request.args.get('per_page'))
         page = int(request.args.get('page'))
-        lendb = len_db()
+        lendb = len_db_tracks()
         if lendb % per_page > 0:
             b = 1
         else:
@@ -40,6 +40,7 @@ def get_track(id):
     else:
         return json.dumps({
             'id': row.track_id,
+            'artist_id': row.artist_id,
             'track': row.track,
             'album': row.album,
             'year': row.year,
